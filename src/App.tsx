@@ -18,6 +18,7 @@ export const App: React.FC = () => {
   const [search, setSearch] = useState('');
   const [currentTodo, setCurrentTodo] = useState<Todo | null>(null);
 
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   const handleFilter = (todos: Todo[], query: string, search: string) => {
     let filteredTodos = [...todos];
 
