@@ -2,29 +2,52 @@
 import React, { useEffect, useState } from 'react';
 import 'bulma/css/bulma.css';
 import '@fortawesome/fontawesome-free/css/all.css';
-
 import { TodoList } from './components/TodoList';
 import { TodoFilter } from './components/TodoFilter';
 import { TodoModal } from './components/TodoModal';
 import { getTodos, getUser } from './api';
 import { User } from './types/User';
 import { Todo } from './types/Todo';
-
 export const App: React.FC = () => {
-  const [todos, setTodos] = useState([]);
-  const [visibleTodos, setVisibleTodos] = useState([]);
-  const [user, setUser] = useState<User | null>();
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [user, setUser] = useState<User | null>(null);
   const [modalWindow, setModalWindow] = useState(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [userLoading, setUserLoading] = useState<boolean>(false);
+  const [query, setQuery] = useState('all');
+  const [search, setSearch] = useState('');
+  const [currentTodo, setCurrentTodo] = useState<Todo | null>(null);
 
-  const [currentTodo, setCurrentTodo] = useState<Todo | null>();
+  const handleFilter = (todos: Todo[], query: string, search: string) => {
+    let filteredTodos = [...todos];
+
+    if (query === 'active') {
+      filteredTodos = todos.filter(todo => !todo.completed);
+
+      return filteredTodos.filter(todo =>
+        todo.title.toLocaleLowerCase().includes(search.toLocaleLowerCase()),
+      );
+    }
+
+    if (query === 'completed') {
+      filteredTodos = todos.filter(todo => todo.completed);
+
+      return filteredTodos.filter(todo =>
+        todo.title.toLocaleLowerCase().includes(search.toLocaleLowerCase()),
+      );
+    }
+
+    return todos.filter(todo =>
+      todo.title.toLocaleLowerCase().includes(search.toLocaleLowerCase()),
+    );
+  };
+
+  const visibleTodos = handleFilter(todos, query, search);
 
   useEffect(() => {
     setLoading(true);
     getTodos().then((res: Todo[]) => {
       setTodos(res);
-      setVisibleTodos(res);
       setLoading(false);
     });
   }, []);
@@ -45,28 +68,19 @@ export const App: React.FC = () => {
     setModalWindow(value);
   };
 
-  const handleSetVisibleTodos = (value: Todo[]) => {
-    setVisibleTodos(value);
-  };
-
-  const handleSetLoading = (value: boolean) => {
-    setLoading(value);
-  };
-
   return (
     <>
       <div className="section">
         <div className="container">
           <div className="box">
             <h1 className="title">Todos:</h1>
-
             <div className="block">
               <TodoFilter
-                todos={todos}
-                setVisibleTodos={handleSetVisibleTodos}
+                onChangeQuery={setQuery}
+                onChangeSearch={setSearch}
+                search={search}
               />
             </div>
-
             <div className="block">
               <TodoList
                 modalWindow={modalWindow}
@@ -75,13 +89,12 @@ export const App: React.FC = () => {
                 getCurrentUser={handleSetUser}
                 currentTodo={currentTodo}
                 setModalWindow={handleModalWindow}
-                getCurrentTodo={(value: Todo[]) => setCurrentTodo(value)}
+                getCurrentTodo={(value: Todo | null) => setCurrentTodo(value)}
               />
             </div>
           </div>
         </div>
       </div>
-
       {modalWindow && (
         <TodoModal
           modalWindow={modalWindow}

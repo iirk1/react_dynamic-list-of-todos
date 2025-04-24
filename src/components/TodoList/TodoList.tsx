@@ -9,7 +9,7 @@ type Props = {
   loading: boolean;
   getCurrentTodo: (value: Todo) => void;
   getCurrentUser: (value: number) => void;
-  currentTodo: Todo;
+  currentTodo: Todo | null;
   modalWindow: boolean;
 };
 

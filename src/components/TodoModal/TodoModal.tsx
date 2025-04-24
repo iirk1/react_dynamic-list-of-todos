@@ -5,9 +5,9 @@ import { User } from '../../types/User';
 
 type Props = {
   setModalWindow: (value: boolean) => void;
-  currentUser: User;
+  currentUser: User | null;
   loading: boolean;
-  currentTodo: Todo;
+  currentTodo: Todo | null;
 };
 
 export const TodoModal: React.FC<Props> = ({
